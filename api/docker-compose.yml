@@ -1,0 +1,25 @@
+services:
+  db:
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root123
+      MYSQL_DATABASE: livraria
+    volumes:
+      - dbdata:/var/lib/mysql
+
+  api:
+    build: .
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      DB_HOST: db
+      DB_USER: root
+      DB_PASSWORD: root123
+      DB_NAME: livraria
+    depends_on:
+      - db
+
+volumes:
+  dbdata:

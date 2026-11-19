@@ -1,0 +1,18 @@
+#cloud-config
+users:
+  - name: ubuntu
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    groups: users, admin, docker
+    shell: /bin/bash
+    ssh_authorized_keys:
+      - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC+PYqKaSbWBPt9mtOU1tmH8i6KwtdZajLe9OAnARahynbyR1XZpsbIgczbXORXKODs6tgBd1hxL+gcvCkejEKaBSPzEW3YS4pqRX7F5fzY7tLXDtTzs78K2he6MvS3Qsf3dk/zR7tNxZ+O2bDxzsgOAQjpiBILhX+K93fIyp4J2SgC+N+KvYiMQPa5dpFhO3JjOQUEyVBTZ9Zm6q/u6/BBYEGsIXuvtPCYMFvatPphhWDTngyT+XlC7+pizFzLx6h99D25dog/ShhtZ1/QH/an9yYpCnd3L6FbnVT/LtWgG6VOdHCp9Ix1pEVt6aR2fjMkytW8CDV9vTxYLw8eBKHr aluno@aluno-OptiPlex-SFF-Plus-7020
+
+package_update: true
+packages:
+  - docker.io
+  - docker-compose-v2
+
+runcmd:
+  - systemctl enable docker
+  - systemctl start docker
+  - usermod -aG docker ubuntu

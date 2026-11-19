@@ -1,0 +1,46 @@
+- name: Aguardar o cloud-init terminar em todas as VMs
+  hosts: all
+  become: true
+  tasks:
+    - name: Esperar instalação do Docker
+      command: cloud-init status --wait
+      changed_when: false
+
+- name: Implantar API e MySQL na VM2
+  hosts: vm2
+  become: true
+  tasks:
+    - name: Copiar arquivos da API
+      copy:
+        src: ../api/
+        dest: /opt/api/
+
+    - name: Subir API e MySQL com docker compose
+      command: docker compose up -d --build
+      args:
+        chdir: /opt/api
+
+- name: Implantar aplicação web na VM1
+  hosts: vm1
+  become: true
+  tasks:
+    - name: Copiar arquivos da aplicação web
+      copy:
+        src: ../app/
+        dest: /opt/app/
+
+    - name: Apontar a página para a API da VM2
+      replace:
+        path: /opt/app/index.html
+        regexp: '__API_URL__'
+        replace: "http://{{ hostvars['vm2'].ansible_host }}:3000"
+
+    - name: Construir a imagem web
+      command: docker build -t livraria-web /opt/app
+
+    - name: Remover contêiner antigo, se existir
+      command: docker rm -f web
+      failed_when: false
+
+    - name: Subir o contêiner web
+      command: docker run -d --name web --restart always -p 80:80 livraria-web
